@@ -2,14 +2,24 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class CasseBrique extends Canvas {
+public class CasseBrique extends Canvas implements KeyListener {
 
-    public static final int LARGEUR = 1900;
-    public static final int HAUTEUR = 1500;
+    public static final int LARGEUR = 300;
+    public static final int HAUTEUR = 500;
 
     private final int decalageVerticalBarreDefilement = 35;
     private final int decalageHorizontalBarreDefilement = 15;
+
+    private Barre barre;
+    private Balle[] listeBalle = new Balle[1];
+    
+    // délarer un tableau de 24 briques
+
+    private boolean toucheGauche = false;
+    private boolean toucheDroite = false;
 
     public CasseBrique()  {
 
@@ -28,6 +38,10 @@ public class CasseBrique extends Canvas {
         frame.setResizable(false);
         frame.requestFocus();
 
+       // document.addEventistener("mousedown", Fonction)
+
+        frame.addKeyListener(this);
+
         Container panneau = frame.getContentPane();
         panneau.add(this);
 
@@ -39,37 +53,46 @@ public class CasseBrique extends Canvas {
 
     public void demarrer(){
 
+        // initialise la liste de briques 4 lignes sur 6 colonnes
+        
         try {
 
-//            Balle balle = new Balle(
-//                    LARGEUR / 2,
-//                    HAUTEUR / 2,
-//                    3,
-//                    2,
-//                    50,
-//                    Color.GREEN);
+            listeBalle[0] = new Balle(LARGEUR / 2, HAUTEUR / 2, 1 , 4, 30, Color.RED);
 
-            Balle[] listeBalle = new Balle[5000];
-
-            for(int i = 0; i<5000; i++){
-                listeBalle[i] = new Balle();
-            }
+            barre = new Barre(
+                    LARGEUR / 2 - 50, 
+                    HAUTEUR - 100, 
+                    100, 
+                    30, 
+                    Color.BLUE,
+                    5);
 
             while (true) {
 
                 Graphics2D dessin = (Graphics2D) this.getBufferStrategy().getDrawGraphics();
 
-                //debut affichage
 
-                //afficher background
+                //---background----
                 dessin.setColor(Color.WHITE);
                 dessin.fillRect(0,0, LARGEUR, HAUTEUR);
 
+                //---barre---
+                if(toucheGauche){
+                    barre.deplacementGauche();
+                } else if(toucheDroite) {
+                    barre.deplacementDroite();
+                }
+
+                barre.dessiner(dessin);
+
+                //---balle---
                 for(Balle balle : listeBalle) {
                     balle.deplacer();
                     balle.dessiner(dessin);
+                    balle.testCollision(barre);
                 }
-
+                
+                //on affiche les briques et on test leur collision
 
                 //fin affichage
                 dessin.dispose();
@@ -81,6 +104,29 @@ public class CasseBrique extends Canvas {
             System.out.println("Le programme s'est arrêté");
         }
 
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            toucheGauche = true;
+        } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            toucheDroite = true;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            toucheGauche = false;
+        } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            toucheDroite = false;
+        }
     }
 
 }
