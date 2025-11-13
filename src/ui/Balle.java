@@ -2,18 +2,15 @@ package ui;
 
 import java.awt.*;
 
-public class Balle extends Sprite {
+public class Balle extends Cercle {
 
     private int vitesseX;
     private int vitesseY;
-    private int diametre;
-
-
+    
     public Balle(int x, int y, int vitesseX, int vitesseY, int diametre, Color couleur) {
-        super(x, y, couleur);
+        super(x, y, diametre,couleur);
         this.vitesseX = vitesseX;
         this.vitesseY = vitesseY;
-        this.diametre = diametre;
     }
 
 //    public Balle() {
@@ -45,36 +42,28 @@ public class Balle extends Sprite {
         y += vitesseY;
     }
 
-    public void dessiner(Graphics2D dessin) {
-        //afficher le rond
-        dessin.setColor(couleur);
-        dessin.fillOval(x, y,diametre,diametre);
-
-    }
-
-    public void testCollision(Rectangle cible) {
-        int centreX = x + diametre / 2;
-        int centreY = y + diametre / 2;
+    public boolean testCollision(Rectangle cible) {
 
         //si il y a collision
-        if(centreX > cible.getX()
-                && centreX < cible.getX() + cible.getLargeur()
-                && centreY > cible.getY()
-                && centreY < cible.getY() + cible.getHauteur()) {
+        if(Collision.test(this, cible)) {
 
             //on test si c'est une barre ou une brique
             if(cible instanceof Barre) {
                 //On rend negative la vitesse vertical (pour faire remonter la balle)
                 vitesseY = -Math.abs(vitesseY);
+                return true;
             } else {
                 Brique brique = (Brique) cible;
                 
                 if(brique.getPointVie() > 0) {
                     brique.collision();
                     vitesseY = -vitesseY;
+                    return true;
                 }
             }
         }
+        
+        return false;
     }
 
     public int getVitesseX() {
@@ -93,13 +82,7 @@ public class Balle extends Sprite {
         this.vitesseY = vitesseY;
     }
 
-    public int getDiametre() {
-        return diametre;
-    }
-
-    public void setDiametre(int diametre) {
-        this.diametre = diametre;
-    }
+    
 
 
 }

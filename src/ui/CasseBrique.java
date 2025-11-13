@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 public class CasseBrique extends Canvas implements KeyListener {
 
@@ -17,6 +18,7 @@ public class CasseBrique extends Canvas implements KeyListener {
     private Balle[] listeBalle = new Balle[1];
     private Brique[] listeBrique = new Brique[24];
 
+    private ArrayList<Bonus> listeBonus = new ArrayList<>();
     
     // délarer un tableau de 24 briques
 
@@ -81,7 +83,7 @@ public class CasseBrique extends Canvas implements KeyListener {
         try {
 
             listeBalle[0] = new Balle(LARGEUR / 2, HAUTEUR / 2, 1 , 4, 30, Color.RED);
-            
+
             barre = new Barre(
                     LARGEUR / 2 - 50, 
                     HAUTEUR - 100, 
@@ -113,12 +115,46 @@ public class CasseBrique extends Canvas implements KeyListener {
                     balle.deplacer();
                     balle.dessiner(dessin);
                     balle.testCollision(barre);
-                    
+
                     //on test la collision avec chaque brique
                     for(Brique brique : listeBrique) {
-                        balle.testCollision(brique);
+                        //si il y a une collision avec la brique et que ses PV
+                        //sont passé à 0, alors on ajoute un bonus
+                        if(balle.testCollision(brique) && brique.getPointVie() == 0) {
+                            listeBonus.add(new Bonus(brique.getX(), brique.getY()));
+                        }
                     }
                 }
+
+
+//                - quand un bonus apparait il peut etre de 2 types (50 /50)
+//                - soit il est orange et augmenta la taille de la barre bleue
+//                - soit il est rose et il ajoute une nouvelle balle
+//
+//                - modifier au préalable le tableau de balle pour un ArrayList
+//
+//                - pour les + motivé : quand la balle touche le bas de l'ecran elle revient
+//                  sur la barre, et si elle touche 3 fois, recommencer à zero
+
+
+                //pour eviter de supprimer un element de la liste que l'on parcours
+                //on créait une liste vide qui contiendra les éléments a supprimer
+                //dés que l'on aura fini de la parcourir
+                ArrayList<Bonus> listeBonusAsupprimer = new ArrayList<>();
+
+                //on affiche les bonus
+                for(Bonus bonus : listeBonus) {
+                    bonus.deplacer();
+
+                    if(Collision.test(bonus, barre)){
+                        barre.setLargeur(barre.getLargeur() + 10);
+                        listeBonusAsupprimer.add(bonus);
+                    }
+                    
+                    bonus.dessiner(dessin);
+                }
+
+                listeBonus.removeAll(listeBonusAsupprimer);
 
                 //on affiche les brique uniquement si elles ont encore de PV
                 for(Brique brique : listeBrique) {
