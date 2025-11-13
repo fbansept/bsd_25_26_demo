@@ -8,6 +8,7 @@ public class Balle extends Sprite {
     private int vitesseY;
     private int diametre;
 
+
     public Balle(int x, int y, int vitesseX, int vitesseY, int diametre, Color couleur) {
         super(x, y, couleur);
         this.vitesseX = vitesseX;
@@ -51,34 +52,29 @@ public class Balle extends Sprite {
 
     }
 
-    public void testCollision(Barre barre) {
+    public void testCollision(Rectangle cible) {
         int centreX = x + diametre / 2;
         int centreY = y + diametre / 2;
 
-        if(centreX > barre.getX()
-                && centreX < barre.getX() + barre.getLargeur()
-                && centreY > barre.getY()
-                && centreY < barre.getY() + barre.getHauteur()) {
+        //si il y a collision
+        if(centreX > cible.getX()
+                && centreX < cible.getX() + cible.getLargeur()
+                && centreY > cible.getY()
+                && centreY < cible.getY() + cible.getHauteur()) {
 
-            //On rend negative la vitesse vertical (pour faire remonter la balle)
-            vitesseY = -Math.abs(vitesseY);
+            //on test si c'est une barre ou une brique
+            if(cible instanceof Barre) {
+                //On rend negative la vitesse vertical (pour faire remonter la balle)
+                vitesseY = -Math.abs(vitesseY);
+            } else {
+                Brique brique = (Brique) cible;
+                
+                if(brique.getPointVie() > 0) {
+                    brique.collision();
+                    vitesseY = -vitesseY;
+                }
+            }
         }
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     public int getVitesseX() {
@@ -95,14 +91,6 @@ public class Balle extends Sprite {
 
     public void setVitesseY(int vitesseY) {
         this.vitesseY = vitesseY;
-    }
-
-    public Color getCouleur() {
-        return couleur;
-    }
-
-    public void setCouleur(Color couleur) {
-        this.couleur = couleur;
     }
 
     public int getDiametre() {
